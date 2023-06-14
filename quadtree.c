@@ -24,10 +24,17 @@ QuadNode* newNode(int x, int y, int width, int height)
     return n;
 }
 
+QuadNode* Executa(RGBPixel* rgbpixel,unsigned char* blackWhite,int heigth,int length)
+int CalculacorMedia(RGBPixel)
+{
+    //fazer ele calcuar media do quadrante
+}
+
 QuadNode* geraQuadtree(Img* pic, float minError)
 {
     // Converte o vetor RGBPixel para uma MATRIZ que pode acessada por pixels[linha][coluna]
     RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
+    // RGBPixel **pixels = (RGBPixel **)malloc(pic->height * sizeof( RGBPixel *));
 
     unsigned char **blackAndWhite = (unsigned char **)malloc(pic->height * sizeof(unsigned char *));
 
@@ -37,13 +44,14 @@ QuadNode* geraQuadtree(Img* pic, float minError)
     int height = pic->height;
     for(i=0; i<height; i++){
         blackAndWhite[i] = (unsigned char *)malloc(width * sizeof(unsigned char));  
+        //pixels[i] = (RGBPixel *)malloc(width * sizeof(RGBPixel));
     }
 
     for (i = 0; i < height; i++)
     {
         for ( j = 0; i < width; j++)
         {
-            blackAndWhite[i][j] = 0.3 * pixels[i][j].r + 0.59 * pixels[i + 1][j].g + 0.11 * pixels[i + 2][j].b;
+            blackAndWhite[i][j] = 0.3 * pixels[i][j].r + 0.59 * pixels[i][j].g + 0.11 * pixels[i][j].b;
         }
         
     }
@@ -185,8 +193,5 @@ void drawNode(QuadNode* n)
 
 }
 
-
-    int corMedia(int r, int g, int b){
-        return (r + g + b)/3;
-    }
+    
 
