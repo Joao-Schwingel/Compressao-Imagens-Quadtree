@@ -29,13 +29,26 @@ QuadNode* geraQuadtree(Img* pic, float minError)
     // Converte o vetor RGBPixel para uma MATRIZ que pode acessada por pixels[linha][coluna]
     RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
 
-    // Veja como acessar os primeiros 10 pixels da imagem, por exemplo:
-    int i;
-    for(i=0; i<10; i++)
-        printf("%02X %02X %02X\n",pixels[0][i].r,pixels[1][i].g,pixels[2][i].b);
+    unsigned char **blackAndWhite = (unsigned char **)malloc(pic->height * sizeof(unsigned char *));
 
+    // Veja como acessar os primeiros 10 pixels da imagem, por exemplo:
+    int i, j;
     int width = pic->width;
     int height = pic->height;
+    for(i=0; i<height; i++){
+        blackAndWhite[i] = (unsigned char *)malloc(width * sizeof(unsigned char));  
+    }
+
+    for (i = 0; i < height; i++)
+    {
+        for ( j = 0; i < width; j++)
+        {
+            blackAndWhite[i][j] = 0.3 * pixels[i][j].r + 0.59 * pixels[i + 1][j].g + 0.11 * pixels[i + 2][j].b;
+        }
+        
+    }
+    
+    
 
     //////////////////////////////////////////////////////////////////////////
     // Implemente aqui o algoritmo que gera a quadtree, retornando o nodo raiz
@@ -169,5 +182,11 @@ void drawNode(QuadNode* n)
         drawNode(n->SW);
     }
     // Nodos vazios não precisam ser desenhados... nem armazenados!
+
 }
+
+
+    int corMedia(int r, int g, int b){
+        return (r + g + b)/3;
+    }
 
