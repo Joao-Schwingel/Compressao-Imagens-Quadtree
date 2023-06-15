@@ -24,17 +24,43 @@ QuadNode* newNode(int x, int y, int width, int height)
     return n;
 }
 
-QuadNode* Executa(RGBPixel* rgbpixel,unsigned char* blackWhite,int heigth,int length)
-int CalculacorMedia(RGBPixel)
-{
-    //fazer ele calcuar media do quadrante
+QuadNode* Executa(RGBPixel** pixels,unsigned char** blackWhite,int height,int width){
+    int corMedia = 0;
+    int i, j;
+    int histograma[256] = {0};
+    for (i = 0; i < height; i++)
+    {
+        for ( j = 0; i < width; j++)
+        {
+            corMedia += (pixels[i][j].r + pixels[i][j].g + pixels[i][j].b)/3;
+        }
+    }
+
+
+    for (i = 0; i < height; i++)
+    {
+        for ( j = 0; i < width; j++)
+        {
+            histograma[strtol(blackWhite[i][j], NULL, 10)] ++;
+        }
+    }
+
+    
+    
+        
 }
+
+
+// int CalculacorMedia(RGBPixel)
+// {
+//     //fazer ele calcuar media do quadrante
+// }
 
 QuadNode* geraQuadtree(Img* pic, float minError)
 {
     // Converte o vetor RGBPixel para uma MATRIZ que pode acessada por pixels[linha][coluna]
-    RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
-    // RGBPixel **pixels = (RGBPixel **)malloc(pic->height * sizeof( RGBPixel *));
+    // RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
+    RGBPixel **pixels = (RGBPixel **)malloc(pic->height * sizeof( RGBPixel *));
 
     unsigned char **blackAndWhite = (unsigned char **)malloc(pic->height * sizeof(unsigned char *));
 
@@ -44,7 +70,7 @@ QuadNode* geraQuadtree(Img* pic, float minError)
     int height = pic->height;
     for(i=0; i<height; i++){
         blackAndWhite[i] = (unsigned char *)malloc(width * sizeof(unsigned char));  
-        //pixels[i] = (RGBPixel *)malloc(width * sizeof(RGBPixel));
+        pixels[i] = (RGBPixel *)malloc(width * sizeof(RGBPixel));
     }
 
     for (i = 0; i < height; i++)
