@@ -1,6 +1,7 @@
 #include "quadtree.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
@@ -24,60 +25,74 @@ QuadNode* newNode(int x, int y, int width, int height)
     return n;
 }
 
-QuadNode* Executa(RGBPixel** pixels,unsigned char** blackWhite,int height,int width){
-    int corMedia = 0;
+QuadNode* Executa(RGBPixel** pixels, int *blackWhite, int height, int width ,int x, int y){
+    unsigned char corMedia[3];
     int i, j;
     int histograma[256] = {0};
+    int quantPixels, aux, intensidade, erro, r, g, b = 0;
+    
     for (i = 0; i < height; i++)
     {
         for ( j = 0; i < width; j++)
         {
-            corMedia += (pixels[i][j].r + pixels[i][j].g + pixels[i][j].b)/3;
+            r += pixels[i][j].r;
+            g += pixels[i][j].g;
+            b += pixels[i][j].b;
+            quantPixels++;
         }
     }
 
+    corMedia[0] = r/quantPixels;
+    corMedia[1] = g/quantPixels;
+    corMedia[2] = b/quantPixels;
 
     for (i = 0; i < height; i++)
     {
         for ( j = 0; i < width; j++)
         {
-            histograma[strtol(blackWhite[i][j], NULL, 10)] ++;
+            histograma[blackWhite[i * width + j]] += 1;
         }
     }
 
-    
-    
+    for (i = 0; i< 256 ; i++){
+        intensidade += histograma[i] * i;
+    }
+
+    for (i = 0; i < height; i++)
+    {
+        for ( j = 0; i < width; j++)
+        {
+            aux +=  pow((blackWhite[i * width + j] - intensidade),2);
+        }
+    }
+    erro = (1/width * height) * aux;
+    erro = sqrt(erro);
         
 }
-
-
-// int CalculacorMedia(RGBPixel)
-// {
-//     //fazer ele calcuar media do quadrante
-// }
 
 QuadNode* geraQuadtree(Img* pic, float minError)
 {
     // Converte o vetor RGBPixel para uma MATRIZ que pode acessada por pixels[linha][coluna]
-    // RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
-    RGBPixel **pixels = (RGBPixel **)malloc(pic->height * sizeof( RGBPixel *));
+    RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
+    // RGBPixel **pixels = (RGBPixel **)malloc(pic->height * sizeof( RGBPixel *));
 
-    unsigned char **blackAndWhite = (unsigned char **)malloc(pic->height * sizeof(unsigned char *));
+    int *blackAndWhite = malloc(pic->height * pic->width * sizeof(int));
 
-    // Veja como acessar os primeiros 10 pixels da imagem, por exemplo:
     int i, j;
     int width = pic->width;
     int height = pic->height;
     for(i=0; i<height; i++){
         blackAndWhite[i] = (unsigned char *)malloc(width * sizeof(unsigned char));  
-        pixels[i] = (RGBPixel *)malloc(width * sizeof(RGBPixel));
+        // pixels[i] = (RGBPixel *)malloc(width * sizeof(RGBPixel));
     }
+
 
     for (i = 0; i < height; i++)
     {
-        for ( j = 0; i < width; j++)
+        for ( j = 0; j < width; j++)
         {
-            blackAndWhite[i][j] = 0.3 * pixels[i][j].r + 0.59 * pixels[i][j].g + 0.11 * pixels[i][j].b;
+            int pixelCinza = (0.3 * pixels[i][j].r) + (0.59 * pixels[i][j].g) + (0.11 * pixels[i][j].b);
+            blackAndWhite[i * width + j] = pixelCinza;
         }
         
     }
@@ -124,8 +139,10 @@ QuadNode* geraQuadtree(Img* pic, float minError)
 
     // Aponta do nodo nw para o nodo nw2
     nw->NW = nw2;
-
+    
 #endif
+
+    free(blackAndWhite);
     // Finalmente, retorna a raiz da árvore
     return raiz;
 }
