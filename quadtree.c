@@ -25,7 +25,9 @@ QuadNode* newNode(int x, int y, int width, int height)
     return n;
 }
 
-QuadNode* Executa(RGBPixel** pixels, int *blackWhite, int height, int width ,int x, int y){
+QuadNode* Executa(RGBPixel *pixels, int *blackWhite, int height, int width ,int x, int y, float minError){
+    QuadNode* auxiliar = newNode(x, y, width, height);
+    
     unsigned char corMedia[3];
     int i, j;
     int histograma[256] = {0};
@@ -35,16 +37,23 @@ QuadNode* Executa(RGBPixel** pixels, int *blackWhite, int height, int width ,int
     {
         for ( j = 0; i < width; j++)
         {
-            r += pixels[i][j].r;
-            g += pixels[i][j].g;
-            b += pixels[i][j].b;
+            r += pixels[i * width + j].r;
+            g += pixels[i * width + j].g;
+            b += pixels[i * width + j].b;
             quantPixels++;
         }
     }
 
+    int meiaLargura = width/2;
+    int meiaAltura = height/2;
+
     corMedia[0] = r/quantPixels;
     corMedia[1] = g/quantPixels;
     corMedia[2] = b/quantPixels;
+
+    auxiliar->color[0] = corMedia[0];
+    auxiliar->color[1] = corMedia[1];
+    auxiliar->color[2] = corMedia[2];
 
     for (i = 0; i < height; i++)
     {
@@ -67,84 +76,84 @@ QuadNode* Executa(RGBPixel** pixels, int *blackWhite, int height, int width ,int
     }
     erro = (1/width * height) * aux;
     erro = sqrt(erro);
-        
+
+    if(minError < erro){
+        QuadNode* nw = Executa(pixels, blackWhite, meiaAltura, meiaLargura, 0, 0, erro);
+        QuadNode* ne = Executa(pixels, blackWhite, meiaAltura, meiaLargura, 0, meiaLargura, erro);
+        QuadNode* sw = Executa(pixels, blackWhite, meiaAltura, meiaLargura, meiaAltura, 0, erro);
+        QuadNode* se = Executa(pixels, blackWhite, meiaAltura, meiaLargura, meiaAltura, meiaLargura, erro);
+        auxiliar->NW = nw;
+        auxiliar->NE = ne;
+        auxiliar->SW = sw;
+        auxiliar->SE = se;
+    }
+    return auxiliar;
 }
 
 QuadNode* geraQuadtree(Img* pic, float minError)
 {
-    // Converte o vetor RGBPixel para uma MATRIZ que pode acessada por pixels[linha][coluna]
-    RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
-    // RGBPixel **pixels = (RGBPixel **)malloc(pic->height * sizeof( RGBPixel *));
+    // RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
 
+
+    RGBPixel *pixels = malloc(pic->height * pic->width * sizeof(RGBPixel));
     int *blackAndWhite = malloc(pic->height * pic->width * sizeof(int));
 
     int i, j;
     int width = pic->width;
     int height = pic->height;
-    for(i=0; i<height; i++){
-        blackAndWhite[i] = (unsigned char *)malloc(width * sizeof(unsigned char));  
-        // pixels[i] = (RGBPixel *)malloc(width * sizeof(RGBPixel));
-    }
+    // for(i=0; i<height; i++){
+    //     blackAndWhite[i] = malloc(width * height * sizeof(unsigned char));  
+    // }
 
 
     for (i = 0; i < height; i++)
     {
         for ( j = 0; j < width; j++)
         {
-            int pixelCinza = (0.3 * pixels[i][j].r) + (0.59 * pixels[i][j].g) + (0.11 * pixels[i][j].b);
+            int pixelCinza = (0.3 * pixels[i * width + j].r) + (0.59 * pixels[i * width + j].g) + (0.11 * pixels[i * width + j].b);
             blackAndWhite[i * width + j] = pixelCinza;
         }
         
     }
     
-    
+    QuadNode* raiz = Executa(pixels, blackAndWhite, height, width, 0, 0, minError);
 
-    //////////////////////////////////////////////////////////////////////////
-    // Implemente aqui o algoritmo que gera a quadtree, retornando o nodo raiz
-    //////////////////////////////////////////////////////////////////////////
+    free(blackAndWhite);
 
-// COMENTE a linha abaixo quando seu algoritmo ja estiver funcionando
-// Caso contrario, ele ira gerar uma arvore de teste com 3 nodos
-
+    return raiz;
 #define DEMO
 #ifdef DEMO
 
-    /************************************************************/
-    /* Teste: criando uma raiz e dois nodos a mais              */
-    /************************************************************/
 
-    QuadNode* raiz = newNode(0,0,width,height);
-    raiz->status = PARCIAL;
-    raiz->color[0] = 0;
-    raiz->color[1] = 0;
-    raiz->color[2] = 255;
+    // QuadNode* raiz = newNode(0,0,width,height);
+    // raiz->status = PARCIAL;
+    // raiz->color[0] = 0;
+    // raiz->color[1] = 0;
+    // raiz->color[2] = 255;
 
-    int meiaLargura = width/2;
-    int meiaAltura = height/2;
+    // int meiaLargura = width/2;
+    // int meiaAltura = height/2;
 
-    QuadNode* nw = newNode(meiaLargura, 0, meiaLargura, meiaAltura);
-    nw->status = PARCIAL;
-    nw->color[0] = 0;
-    nw->color[1] = 0;
-    nw->color[2] = 255;
+    // QuadNode* nw = newNode(meiaLargura, 0, meiaLargura, meiaAltura);
+    // nw->status = PARCIAL;
+    // nw->color[0] = 0;
+    // nw->color[1] = 0;
+    // nw->color[2] = 255;
 
-    // Aponta da raiz para o nodo nw
-    raiz->NW = nw;
+    // // Aponta da raiz para o nodo nws
+    // raiz->NW = nw;
 
-    QuadNode* nw2 = newNode(meiaLargura+meiaLargura/2, 0, meiaLargura/2, meiaAltura/2);
-    nw2->status = CHEIO;
-    nw2->color[0] = 255;
-    nw2->color[1] = 0;
-    nw2->color[2] = 0;
+    // QuadNode* nw2 = newNode(meiaLargura+meiaLargura/2, 0, meiaLargura/2, meiaAltura/2);
+    // nw2->status = CHEIO;
+    // nw2->color[0] = 255;
+    // nw2->color[1] = 0;
+    // nw2->color[2] = 0;
 
-    // Aponta do nodo nw para o nodo nw2
-    nw->NW = nw2;
+    // // Aponta do nodo nw para o nodo nw2
+    // nw->NW = nw2;
     
 #endif
-
-    free(blackAndWhite);
-    // Finalmente, retorna a raiz da árvore
-    return raiz;
+    // return raiz;
 }
 
 // Limpa a memória ocupada pela árvore
