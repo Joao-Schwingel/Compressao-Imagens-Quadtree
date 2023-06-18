@@ -76,15 +76,15 @@ QuadNode* Executa(int height, int width, RGBPixel **pixels , unsigned char** bla
     }
     erro = erro / (width * height);
     erro = sqrt(erro);
-    if(erro < minError){
+    if(erro <= minError){
         auxiliar->status = CHEIO;
         return auxiliar;
     }
     auxiliar->status = PARCIAL;
     auxiliar->NW = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x, y, minError);
-    auxiliar->NE = Executa(meiaAltura, width, pixels, blackWhite, x, y + meiaLargura , minError);
-    auxiliar->SW = Executa(height, meiaLargura, pixels, blackWhite, x + meiaAltura , y , minError);
-    auxiliar->SE = Executa(height, width, pixels, blackWhite, x + meiaAltura, y + meiaLargura, minError);
+    auxiliar->NE = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x, y + meiaLargura , minError);
+    auxiliar->SW = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x + meiaAltura , y , minError);
+    auxiliar->SE = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x + meiaAltura, y + meiaLargura, minError);
     return auxiliar;
     
 }
@@ -113,6 +113,7 @@ QuadNode* geraQuadtree(Img* pic, float minError)
     }
 
     QuadNode* raiz = Executa(height, width, pixels, blackAndWhite, 0, 0, minError);
+    
     return raiz;
     
     // RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
