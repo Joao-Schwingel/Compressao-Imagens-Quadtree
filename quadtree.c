@@ -54,9 +54,9 @@ QuadNode* Executa(int height, int width, RGBPixel **pixels , unsigned char** bla
     auxiliar->color[1] = color[1];
     auxiliar->color[2] = color[2];
 
-    for (i = y; i < y+height; i++)
+    for (i = y; i < y + height; i++)
     {
-        for ( j = x; j < x+width; j++)
+        for (j = x; j < x + width; j++)
         {
             histograma[blackWhite[i][j]] += 1;
         }
@@ -69,7 +69,7 @@ QuadNode* Executa(int height, int width, RGBPixel **pixels , unsigned char** bla
 
     for (i = y; i < y + height; i++)
     {
-        for ( j = x; j < x + width; j++)
+        for (j = x; j < x + width; j++)
         {
             aux = blackWhite[i][j] - intensidade;
             erro += aux * aux;
@@ -83,8 +83,8 @@ QuadNode* Executa(int height, int width, RGBPixel **pixels , unsigned char** bla
     }else{
         auxiliar->status = PARCIAL;
         auxiliar->NW = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x, y, minError);
-        auxiliar->NE = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x + meiaLargura, y , minError);
-        auxiliar->SW = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x  , y  + meiaAltura, minError);
+        auxiliar->NE = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x + meiaLargura , y , minError);
+        auxiliar->SW = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x , y + meiaAltura , minError);
         auxiliar->SE = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x + meiaLargura, y + meiaAltura, minError);
         return auxiliar;
     }
@@ -119,14 +119,15 @@ QuadNode* geraQuadtree(Img* pic, float minError)
     
     // RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
 
-    // unsigned char** blackAndWhite = (unsigned char**)malloc(pic->height * sizeof(unsigned char*));
-    // for (int i = 0; i < pic->height; i++) {
-    //     blackAndWhite[i] = (unsigned char*)malloc(pic->width * sizeof(unsigned char));
-    // }
-
     // int i, j;
     // int width = pic->width;
     // int height = pic->height;
+
+    // unsigned char** blackAndWhite = (unsigned char**)malloc(pic->height * sizeof(unsigned char*));
+    // // for (int i = 0; i < pic->height; i++) {
+    // //     blackAndWhite[i] = (unsigned char*)malloc(width * sizeof(unsigned char));
+    // // }
+
 
 
 
