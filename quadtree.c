@@ -34,8 +34,8 @@ QuadNode* Executa(int height, int width, RGBPixel **pixels , unsigned char** bla
     int quantPixels = 0, intensidade = 0, r = 0, g = 0, b = 0;
     double erro = 0;
     
-     for (i = x; i < x + height; i++) {
-        for (j = y; j < y + width; j++) {
+     for (i = y; i < y + height; i++) {
+        for (j = x; j < x + width; j++) {
             r += pixels[i][j].r;
             g += pixels[i][j].g;
             b += pixels[i][j].b;
@@ -54,9 +54,9 @@ QuadNode* Executa(int height, int width, RGBPixel **pixels , unsigned char** bla
     auxiliar->color[1] = color[1];
     auxiliar->color[2] = color[2];
 
-    for (i = x; i < x+height; i++)
+    for (i = y; i < y+height; i++)
     {
-        for ( j = y; j < y+width; j++)
+        for ( j = x; j < x+width; j++)
         {
             histograma[blackWhite[i][j]] += 1;
         }
@@ -67,9 +67,9 @@ QuadNode* Executa(int height, int width, RGBPixel **pixels , unsigned char** bla
     }
     intensidade = intensidade/quantPixels;
 
-    for (i = x; i < x + height; i++)
+    for (i = y; i < y + height; i++)
     {
-        for ( j = y; j < y + width; j++)
+        for ( j = x; j < x + width; j++)
         {
             erro += pow(blackWhite[i][j] - intensidade, 2);
         }
@@ -79,14 +79,14 @@ QuadNode* Executa(int height, int width, RGBPixel **pixels , unsigned char** bla
     if(erro <= minError){
         auxiliar->status = CHEIO;
         return auxiliar;
+    }else{
+        auxiliar->status = PARCIAL;
+        auxiliar->NW = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x, y, minError);
+        auxiliar->NE = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x + meiaLargura, y , minError);
+        auxiliar->SW = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x  , y  + meiaAltura, minError);
+        auxiliar->SE = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x + meiaLargura, y + meiaAltura, minError);
+        return auxiliar;
     }
-    auxiliar->status = PARCIAL;
-    auxiliar->NW = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x, y, minError);
-    auxiliar->NE = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x, y + meiaLargura , minError);
-    auxiliar->SW = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x + meiaAltura , y , minError);
-    auxiliar->SE = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x + meiaAltura, y + meiaLargura, minError);
-    return auxiliar;
-    
 }
 
 QuadNode* geraQuadtree(Img* pic, float minError)
