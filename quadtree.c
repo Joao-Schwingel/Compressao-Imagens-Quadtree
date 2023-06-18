@@ -25,21 +25,19 @@ QuadNode* newNode(int x, int y, int width, int height)
     return n;
 }
 
-QuadNode* Executa(RGBPixel *pixels, int *blackWhite, int height, int width ,int x, int y, float minError){
+QuadNode* Executa(int height, int width, RGBPixel **pixels , unsigned char** blackWhite, int x, int y, float minError){
     QuadNode* auxiliar = newNode(x, y, width, height);
     
     unsigned char corMedia[3];
     int i, j;
     int histograma[256] = {0};
-    int quantPixels, aux, intensidade, erro, r, g, b = 0;
-    
-    for (i = 0; i < height; i++)
-    {
-        for ( j = 0; i < width; j++)
-        {
-            r += pixels[i * width + j].r;
-            g += pixels[i * width + j].g;
-            b += pixels[i * width + j].b;
+    int quantPixels = 0, aux = 0, intensidade = 0, r = 0, g = 0, b = 0;
+    double erro = 0;
+     for (i = x; i < height; i++) {
+        for (j = y; j < width; j++) {
+            r += pixels[i][j].r;
+            g += pixels[i][j].g;
+            b += pixels[i][j].b;
             quantPixels++;
         }
     }
@@ -55,11 +53,11 @@ QuadNode* Executa(RGBPixel *pixels, int *blackWhite, int height, int width ,int 
     auxiliar->color[1] = corMedia[1];
     auxiliar->color[2] = corMedia[2];
 
-    for (i = 0; i < height; i++)
+    for (i = x; i < height; i++)
     {
-        for ( j = 0; i < width; j++)
+        for ( j = y; j < width; j++)
         {
-            histograma[blackWhite[i * width + j]] += 1;
+            histograma[blackWhite[i][j]] += 1;
         }
     }
 
@@ -67,93 +65,85 @@ QuadNode* Executa(RGBPixel *pixels, int *blackWhite, int height, int width ,int 
         intensidade += histograma[i] * i;
     }
 
-    for (i = 0; i < height; i++)
+    for (i = x; i < height; i++)
     {
-        for ( j = 0; i < width; j++)
+        for ( j = y; j < width; j++)
         {
-            aux +=  pow((blackWhite[i * width + j] - intensidade),2);
+            float diferenca = blackWhite[i][j] - intensidade;
+            aux += diferenca * diferenca;
         }
     }
-    erro = (1/width * height) * aux;
-    erro = sqrt(erro);
-
-    if(minError < erro){
-        QuadNode* nw = Executa(pixels, blackWhite, meiaAltura, meiaLargura, 0, 0, erro);
-        QuadNode* ne = Executa(pixels, blackWhite, meiaAltura, meiaLargura, 0, meiaLargura, erro);
-        QuadNode* sw = Executa(pixels, blackWhite, meiaAltura, meiaLargura, meiaAltura, 0, erro);
-        QuadNode* se = Executa(pixels, blackWhite, meiaAltura, meiaLargura, meiaAltura, meiaLargura, erro);
-        auxiliar->NW = nw;
-        auxiliar->NE = ne;
-        auxiliar->SW = sw;
-        auxiliar->SE = se;
+    erro = sqrt(1.0 * aux / (height * width));
+    if(erro <= minError){
+        auxiliar->status = CHEIO;
+        return auxiliar;
     }
+
+    auxiliar->status = PARCIAL;
+    auxiliar->NW = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x, y, minError);
+    auxiliar->NE = Executa(meiaAltura, width, pixels, blackWhite, x, y + meiaLargura , minError);
+    auxiliar->SW = Executa(height, meiaLargura, pixels, blackWhite, x + meiaAltura , y , minError);
+    auxiliar->SE = Executa(height, width, pixels, blackWhite, x + meiaAltura, y + meiaLargura, minError);
+    
     return auxiliar;
 }
 
 QuadNode* geraQuadtree(Img* pic, float minError)
 {
-    // RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
-
-
-    RGBPixel *pixels = malloc(pic->height * pic->width * sizeof(RGBPixel));
-    int *blackAndWhite = malloc(pic->height * pic->width * sizeof(int));
+    RGBPixel **pixels = (RGBPixel **)malloc(pic->height * sizeof(RGBPixel *));
+    unsigned char** blackAndWhite = (unsigned char**)malloc(pic->height * sizeof(unsigned char*));
 
     int i, j;
     int width = pic->width;
     int height = pic->height;
-    // for(i=0; i<height; i++){
-    //     blackAndWhite[i] = malloc(width * height * sizeof(unsigned char));  
+    
+
+    for(i = 0; i < height; i ++){
+        pixels[i] = (RGBPixel *)malloc(width * sizeof(RGBPixel));
+        blackAndWhite[i] = (unsigned char*)malloc(width * sizeof(unsigned char));
+    }
+
+
+    for(i = 0; i< height; i++){
+        for(j = 0; j < width; j++){
+            pixels[i][j] = pic->img[i * width + j];
+            blackAndWhite[i][j] = (0.3 * pixels[i][j].r) + (0.59 * pixels[i][j].g) + (0.11 * pixels[i][j].b);
+        }
+    }
+
+    QuadNode* raiz = Executa(height, width, pixels, blackAndWhite, 0, 0, minError);
+    return raiz;
+    
+    // RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
+
+    // unsigned char** blackAndWhite = (unsigned char**)malloc(pic->height * sizeof(unsigned char*));
+    // for (int i = 0; i < pic->height; i++) {
+    //     blackAndWhite[i] = (unsigned char*)malloc(pic->width * sizeof(unsigned char));
     // }
 
+    // int i, j;
+    // int width = pic->width;
+    // int height = pic->height;
 
-    for (i = 0; i < height; i++)
-    {
-        for ( j = 0; j < width; j++)
-        {
-            int pixelCinza = (0.3 * pixels[i * width + j].r) + (0.59 * pixels[i * width + j].g) + (0.11 * pixels[i * width + j].b);
-            blackAndWhite[i * width + j] = pixelCinza;
-        }
+
+
+    // for (i = 0; i < height; i++)
+    // {
+    //     for ( j = 0; j < width; j++)
+    //     {
+    //         int pixelCinza = (0.3 * pixels[i][j].r) + (0.59 * pixels[i][j].g) + (0.11 * pixels[i][j].b);
+    //         blackAndWhite[i][j] = (unsigned char)pixelCinza;
+    //     }
         
-    }
+    // }
     
-    QuadNode* raiz = Executa(pixels, blackAndWhite, height, width, 0, 0, minError);
 
-    free(blackAndWhite);
-
-    return raiz;
-#define DEMO
-#ifdef DEMO
-
-
-    // QuadNode* raiz = newNode(0,0,width,height);
-    // raiz->status = PARCIAL;
-    // raiz->color[0] = 0;
-    // raiz->color[1] = 0;
-    // raiz->color[2] = 255;
-
-    // int meiaLargura = width/2;
-    // int meiaAltura = height/2;
-
-    // QuadNode* nw = newNode(meiaLargura, 0, meiaLargura, meiaAltura);
-    // nw->status = PARCIAL;
-    // nw->color[0] = 0;
-    // nw->color[1] = 0;
-    // nw->color[2] = 255;
-
-    // // Aponta da raiz para o nodo nws
-    // raiz->NW = nw;
-
-    // QuadNode* nw2 = newNode(meiaLargura+meiaLargura/2, 0, meiaLargura/2, meiaAltura/2);
-    // nw2->status = CHEIO;
-    // nw2->color[0] = 255;
-    // nw2->color[1] = 0;
-    // nw2->color[2] = 0;
-
-    // // Aponta do nodo nw para o nodo nw2
-    // nw->NW = nw2;
+    // return Executa(height, width, pixels, blackAndWhite, 0, 0, minError);
     
-#endif
-    // return raiz;
+    // for (int i = 0; i < height; i++) {
+    //     free(blackAndWhite[i]);
+    // }
+    // free(blackAndWhite);
 }
 
 // Limpa a memória ocupada pela árvore
@@ -244,6 +234,3 @@ void drawNode(QuadNode* n)
     // Nodos vazios não precisam ser desenhados... nem armazenados!
 
 }
-
-    
-
