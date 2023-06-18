@@ -31,7 +31,7 @@ QuadNode* Executa(int height, int width, RGBPixel **pixels , unsigned char** bla
     unsigned char color[3];
     int i, j;
     int histograma[256] = {0};
-    int quantPixels = 0, intensidade = 0, r = 0, g = 0, b = 0;
+    int quantPixels = 0, aux = 0, intensidade = 0, r = 0, g = 0, b = 0;
     double erro = 0;
     
      for (i = y; i < y + height; i++) {
@@ -71,11 +71,12 @@ QuadNode* Executa(int height, int width, RGBPixel **pixels , unsigned char** bla
     {
         for ( j = x; j < x + width; j++)
         {
-            erro += pow(blackWhite[i][j] - intensidade, 2);
+            aux = blackWhite[i][j] - intensidade;
+            erro += aux * aux;
         }
     }
-    erro = erro / (width * height);
-    erro = sqrt(erro);
+    aux = erro / (width * height);
+    erro = sqrt(aux);
     if(erro <= minError){
         auxiliar->status = CHEIO;
         return auxiliar;
