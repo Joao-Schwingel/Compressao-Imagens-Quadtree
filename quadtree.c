@@ -11,6 +11,8 @@
 
 unsigned int first = 1;
 char desenhaBorda = 1;
+int larguraIMG;
+int alturaIMG;
 
 QuadNode* newNode(int x, int y, int width, int height)
 {
@@ -25,7 +27,7 @@ QuadNode* newNode(int x, int y, int width, int height)
     return n;
 }
 
-QuadNode* Executa(int height, int width, RGBPixel **pixels , unsigned char** blackWhite, int x, int y, float minError){
+QuadNode* Executa(int height, int width, RGBPixel** pixels , unsigned char** blackWhite, int x, int y, float minError){
     QuadNode* auxiliar = newNode(x, y, width, height);
     
     unsigned char color[3];
@@ -34,7 +36,8 @@ QuadNode* Executa(int height, int width, RGBPixel **pixels , unsigned char** bla
     int quantPixels = 0, aux = 0, intensidade = 0, r = 0, g = 0, b = 0;
     double erro = 0;
     
-     for (i = y; i < y + height; i++) {
+     for (i = y; i < y + height; i++)
+    {
         for (j = x; j < x + width; j++) {
             r += pixels[i][j].r;
             g += pixels[i][j].g;
@@ -42,9 +45,10 @@ QuadNode* Executa(int height, int width, RGBPixel **pixels , unsigned char** bla
             quantPixels++;
         }
     }
+    
+    int meiaLargura = (int)width/2;
+    int meiaAltura = (int)height/2;
 
-    int meiaLargura = width/2;
-    int meiaAltura = height/2;
 
     color[0] = r/quantPixels;
     color[1] = g/quantPixels;
@@ -77,10 +81,17 @@ QuadNode* Executa(int height, int width, RGBPixel **pixels , unsigned char** bla
     }
     aux = erro / (width * height);
     erro = sqrt(aux);
-    if(erro <= minError){
+    if(erro < minError){
         auxiliar->status = CHEIO;
         return auxiliar;
     }else{
+        if (height <=2|| width <= 2)
+        {
+            auxiliar->status = CHEIO;
+            return auxiliar;
+        }
+        
+
         auxiliar->status = PARCIAL;
         auxiliar->NW = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x, y, minError);
         auxiliar->NE = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x + meiaLargura , y , minError);
@@ -92,14 +103,22 @@ QuadNode* Executa(int height, int width, RGBPixel **pixels , unsigned char** bla
 
 QuadNode* geraQuadtree(Img* pic, float minError)
 {
-    RGBPixel **pixels = (RGBPixel **)malloc(pic->height * sizeof(RGBPixel *));
-    unsigned char** blackAndWhite = (unsigned char**)malloc(pic->height * sizeof(unsigned char*));
-
     int i, j;
     int width = pic->width;
     int height = pic->height;
+    alturaIMG = height;
+    larguraIMG = width;
+
+    // RGBPixel pixels [height][width];
+    // unsigned char blackAndWhite[height][width];
+
+
+    
+    RGBPixel **pixels = (RGBPixel **)malloc(pic->height * sizeof(RGBPixel *));
+    unsigned char** blackAndWhite = (unsigned char**)malloc(pic->height * sizeof(unsigned char*));
     
 
+    
     for(i = 0; i < height; i ++){
         pixels[i] = (RGBPixel *)malloc(width * sizeof(RGBPixel));
         blackAndWhite[i] = (unsigned char*)malloc(width * sizeof(unsigned char));
@@ -117,18 +136,20 @@ QuadNode* geraQuadtree(Img* pic, float minError)
     
     return raiz;
     
-    // RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
 
+
+    // RGBPixel (*pixels)[pic->height] = (RGBPixel(*)[pic->width]) pic->img;
     // int i, j;
     // int width = pic->width;
     // int height = pic->height;
-
     // unsigned char** blackAndWhite = (unsigned char**)malloc(pic->height * sizeof(unsigned char*));
-    // // for (int i = 0; i < pic->height; i++) {
-    // //     blackAndWhite[i] = (unsigned char*)malloc(width * sizeof(unsigned char));
-    // // }
+    // alturaOriginal = height;
+    // larguraOriginal = width;
 
 
+    // for(i = 0; i < height; i ++){
+    //     blackAndWhite[i] = (unsigned char*)malloc(width * sizeof(unsigned char));
+    // }
 
 
     // for (i = 0; i < height; i++)
@@ -144,10 +165,6 @@ QuadNode* geraQuadtree(Img* pic, float minError)
 
     // return Executa(height, width, pixels, blackAndWhite, 0, 0, minError);
     
-    // for (int i = 0; i < height; i++) {
-    //     free(blackAndWhite[i]);
-    // }
-    // free(blackAndWhite);
 }
 
 // Limpa a memória ocupada pela árvore
