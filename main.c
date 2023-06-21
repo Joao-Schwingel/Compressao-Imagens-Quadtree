@@ -102,6 +102,11 @@ void keyboard(unsigned char key, int x, int y)
     // '-' reduz o nível de erro
     if(key=='-') {
         erro--;
+        if (erro <= 0){
+            clearTree(raiz);
+            free(pic.img);
+            exit(1);
+        }
         changed=1;
     }
 

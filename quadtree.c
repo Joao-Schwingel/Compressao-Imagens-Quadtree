@@ -85,19 +85,18 @@ QuadNode* Executa(int height, int width, RGBPixel** pixels , unsigned char** bla
         auxiliar->status = CHEIO;
         return auxiliar;
     }else{
-        if (height <=2|| width <= 2)
+        if (meiaLargura ==1|| meiaAltura == 1)
         {
             auxiliar->status = CHEIO;
             return auxiliar;
+        }else{
+            auxiliar->status = PARCIAL;
+            auxiliar->NW = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x, y, minError);
+            auxiliar->NE = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x + meiaLargura , y , minError);
+            auxiliar->SW = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x , y + meiaAltura , minError);
+            auxiliar->SE = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x + meiaLargura, y + meiaAltura, minError);
+            return auxiliar;
         }
-        
-
-        auxiliar->status = PARCIAL;
-        auxiliar->NW = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x, y, minError);
-        auxiliar->NE = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x + meiaLargura , y , minError);
-        auxiliar->SW = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x , y + meiaAltura , minError);
-        auxiliar->SE = Executa(meiaAltura, meiaLargura, pixels, blackWhite, x + meiaLargura, y + meiaAltura, minError);
-        return auxiliar;
     }
 }
 
