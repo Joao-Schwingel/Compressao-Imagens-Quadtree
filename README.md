@@ -1,2 +1,5 @@
 # Compressao-Imagens-Quadtree
-Faz a compressão de uma imagem por quadtree, trabalho 2 programação de software básico
+Trabalho 2 programação de software básico;
+Professor: Marcelo Cohen;
+Alunos: João Schwingel e Leonardo Botton;
+Faz a compressão de uma imagem por quadtree.
