@@ -137,7 +137,7 @@ QuadNode* geraQuadtree(Img* pic, float minError)
     //unsigned char blackAndWhite[heigth][width]
 
 
-    // RGBPixel (*pixels)[pic->height] = (RGBPixel(*)[pic->width]) pic->img;
+    // RGBPixel (*pixels)[pic->width] = (RGBPixel(*)[pic->height]) pic->img;
     // int i, j;
     // int width = pic->width;
     // int height = pic->height;
